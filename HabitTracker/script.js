@@ -1,69 +1,123 @@
-// Get DOM elements
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const habitTracker = document.getElementById('habit-tracker');
-const loginButton = document.getElementById('login-button');
-const registerButton = document.getElementById('register-button');
+// Select elements from the DOM
+const habitInput = document.getElementById('habit-input');
+const addHabitButton = document.getElementById('add-habit-button');
+const habitList = document.getElementById('habit-list');
 const logoutButton = document.getElementById('logout-button');
-const showRegister = document.getElementById('show-register');
-const showLogin = document.getElementById('show-login');
+const quoteElement = document.getElementById('quote');
+const loginSection = document.getElementById('login-section');
+const habitTrackerSection = document.getElementById('habit-tracker-section');
+const submitProgressButton = document.getElementById('submit-progress-button');
 
-// Check if user is logged in
-if (localStorage.getItem('loggedIn') === 'true') {
-    showHabitTracker();
+// Array of quotes
+const quotes = [
+    "Faith is taking the first step even when you don't see the whole staircase. – Martin Luther King Jr.",
+    "With God all things are possible. – Matthew 19:26",
+    "Trust in the Lord with all your heart. – Proverbs 3:5",
+    "The will of God will never take you where the grace of God will not protect you.",
+    "Prayer does not change God, but it changes him who prays. – Søren Kierkegaard"
+];
+
+// Load habits from localStorage when the app starts
+function loadHabits() {
+    const habits = JSON.parse(localStorage.getItem('habits')) || [];
+    habits.forEach(habit => {
+        addHabitToList(habit.name, habit.completed);
+    });
 }
 
-// Event Listeners
-loginButton.addEventListener('click', login);
-registerButton.addEventListener('click', register);
-showRegister.addEventListener('click', () => {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
-});
-showLogin.addEventListener('click', () => {
-    registerForm.style.display = 'none';
-    loginForm.style.display = 'block';
-});
-logoutButton.addEventListener('click', logout);
+// Save habits to localStorage
+function saveHabits() {
+    const habits = [];
+    document.querySelectorAll('li').forEach(li => {
+        const habitName = li.textContent.replace('🗑️', '').trim();
+        const isChecked = li.querySelector('input[type="checkbox"]').checked;
+        habits.push({ name: habitName, completed: isChecked });
+    });
+    localStorage.setItem('habits', JSON.stringify(habits));
+}
 
-// Login function
-function login() {
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
+// Function to add a habit to the list
+function addHabitToList(habit, completed = false) {
+    const li = document.createElement('li');
+    li.textContent = habit;
+    
+    // Create a checkbox for tracking completion
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = completed; // Set checkbox state based on completion
 
-    if (localStorage.getItem(username) === password) {
-        localStorage.setItem('loggedIn', 'true');
-        showHabitTracker();
+    // Create a delete button (trash icon)
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '🗑️';
+    deleteButton.className = 'delete-habit-button';
+    deleteButton.addEventListener('click', () => {
+        if (confirm('Are you sure you want to delete this habit?')) {
+            li.remove();
+            saveHabits(); // Update storage after deletion
+        }
+    });
+    
+    li.prepend(checkbox); // Add checkbox to the list item
+    li.appendChild(deleteButton); // Add delete button to the list item
+    habitList.appendChild(li);
+}
+
+// Display a random quote
+function displayRandomQuote() {
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    quoteElement.innerText = randomQuote;
+}
+
+// Event listener for adding a habit
+addHabitButton.addEventListener('click', () => {
+    const habit = habitInput.value.trim();
+    if (habit) {
+        addHabitToList(habit);
+        habitInput.value = ''; // Clear the input field
+        saveHabits(); // Save to localStorage
+        alert('Habit added successfully!'); // Feedback message
     } else {
-        alert('Invalid username or password.');
+        alert('Please enter a habit.'); // Alert for empty input
     }
-}
+});
 
-// Register function
-function register() {
-    const username = document.getElementById('register-username').value;
-    const password = document.getElementById('register-password').value;
-
-    if (localStorage.getItem(username)) {
-        alert('Username already exists. Please choose another.');
+// Event listener for logging in
+document.getElementById('login-button').addEventListener('click', () => {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value; // Capture password
+    if (username && password) {
+        localStorage.setItem('username', username);
+        loginSection.style.display = 'none';
+        habitTrackerSection.style.display = 'block';
+        loadHabits(); // Load habits after logging in
+        displayRandomQuote(); // Display a random quote
     } else {
-        localStorage.setItem(username, password);
-        alert('Registration successful! You can now log in.');
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
+        alert('Please enter both username and password.'); // Alert for empty fields
     }
-}
+});
 
-// Logout function
-function logout() {
-    localStorage.removeItem('loggedIn');
-    habitTracker.style.display = 'none';
-    loginForm.style.display = 'block';
-}
+// Event listener for logging out
+logoutButton.addEventListener('click', () => {
+    localStorage.removeItem('username'); // Clear the username
+    loginSection.style.display = 'block'; // Show login section
+    habitTrackerSection.style.display = 'none'; // Hide habit tracker section
+});
 
-// Show the habit tracker
-function showHabitTracker() {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'none';
-    habitTracker.style.display = 'block';
+// Event listener for submitting progress
+submitProgressButton.addEventListener('click', () => {
+    const checkedHabits = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(checkbox => checkbox.parentElement.textContent.replace('🗑️', '').trim());
+    if (checkedHabits.length > 0) {
+        alert(`You've completed the following habits: ${checkedHabits.join(', ')}`);
+        saveHabits(); // Save to localStorage after submitting
+    } else {
+        alert('No habits checked. Please check at least one habit to submit progress.'); // Alert for no checked habits
+    }
+});
+
+// Check if user is already logged in
+if (localStorage.getItem('username')) {
+    loginSection.style.display = 'none';
+    habitTrackerSection.style.display = 'block';
+    loadHabits(); // Load habits if logged in
+    displayRandomQuote(); // Display a random quote
 }
