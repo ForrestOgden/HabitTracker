@@ -7,24 +7,32 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="login-section">
-        <h1>Habit Tracker</h1>
-        <input type="text" id="username" placeholder="Enter Username">
-        <input type="password" id="password" placeholder="Enter Password">
-        <button id="login-button">Login</button>
-        <p>Don't have an account? <a href="index.html">Register here</a></p>
-    </div>
+    <div id="app">
+        <div id="auth">
+            <h2>Login</h2>
+            <input type="text" id="login-username" placeholder="Username" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button id="login-btn">Login</button>
+            <p>Don't have an account? <span id="register-here" style="color:blue; cursor:pointer;">Register here</span></p>
 
-    <div id="habit-tracker-section" style="display: none;">
-        <div id="user-section">
-            <button id="logout-button">Logout</button>
+            <h2 style="display:none;" id="register-header">Register</h2>
+            <input type="text" id="register-username" placeholder="Username" style="display:none;" required>
+            <input type="password" id="register-password" placeholder="Password" style="display:none;" required>
+            <button id="register-btn" style="display:none;">Register</button>
         </div>
-        <h2>Your Habits</h2>
-        <input type="text" id="habit-input" placeholder="Enter a new habit">
-        <button id="add-habit-button">Add Habit</button>
-        <ul id="habit-list"></ul>
-        <div id="quote"></div>
-        <button id="submit-progress-button">Submit Progress</button>
+
+        <div id="tracker" style="display:none;">
+            <h2>Habit Tracker</h2>
+            <input type="text" id="habit-input" placeholder="Add a new habit">
+            <button id="add-habit-btn">Add Habit</button>
+            <ul id="habit-list"></ul>
+            <button id="logout-btn">Logout</button>
+            <h3>Inspirational Quote of the Day</h3>
+            <p id="quote"></p>
+            <h3>Mood Tracking</h3>
+            <input type="text" id="mood-input" placeholder="How are you feeling today?">
+            <button id="submit-mood-btn">Submit Mood</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
